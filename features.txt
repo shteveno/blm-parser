@@ -1,0 +1,16 @@
+T: FIN,uV,*uD
+T: -FIN,uV,*uD
+v: AG,uD,*uV
+v: PASS,*uV
+v: UACC,uV
+V: uD
+V: uC
+V: X,uA,uV
+N: 
+N: X,uJ,uN
+J: 
+J: X,uI,uJ
+D: uN
+D: uD,uN
+C: FIN,uT
+C: -FIN,uT

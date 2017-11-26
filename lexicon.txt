@@ -1,5 +1,5 @@
-I: D, 1, SG, NOM
-might: T, uv, *uD
-*: v, AG, uV
-love: V, uD
+I: D_1.SG.NOM
+might: T
+love: V
 cake: N
+that: C
