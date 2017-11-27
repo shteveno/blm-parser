@@ -1,16 +1,17 @@
-T: FIN,uV,*uD
-T: -FIN,uV,*uD
+T: FIN,*uD,uV
+T: -FIN,*uD,uV
 v: AG,uD,*uV
 v: PASS,*uV
-v: UACC,uV
-V: uD
-V: uC
+v: UACC,.,uV
+V: .,uD,.
+V: .,uC,.
 V: X,uA,uV
-N: 
+N: .,.,.
 N: X,uJ,uN
-J: 
+J: .,.,.
 J: X,uI,uJ
-D: uN
-D: uD,uN
-C: FIN,uT
-C: -FIN,uT
+D: 1.SG.NOM,.,.
+D: .,.,uN
+D: .,uD,uN
+C: FIN,.,uT
+C: -FIN,.,uT

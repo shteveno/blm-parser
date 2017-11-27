@@ -21,7 +21,6 @@ import(
 // lexical categories!
 
 func Init_map(mapping map[string][]string, fileName string) {
-    fmt.Println("LMAO")
 	file, err := os.Open(fileName)
     if err != nil {
         log.Fatal(err)
@@ -52,5 +51,14 @@ func Init_map(mapping map[string][]string, fileName string) {
     if err := scanner.Err(); err != nil {
         log.Fatal(err)
     }
-    fmt.Println("lmao")
 }
+
+func PrintMap(maps []map[string][]string) {
+    for _, m := range maps {
+        for k, v := range m {
+            fmt.Println("k is ", k, " and v is ", v, " with length ", len(v))
+        }
+        fmt.Println("")
+    }
+}
+

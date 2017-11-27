@@ -1,4 +1,4 @@
 v: AG,UACC
-D: 
+D: . 
 T: PST,PRES
-C: 
+C: .
