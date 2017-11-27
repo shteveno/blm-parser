@@ -50,26 +50,33 @@ func wait_user() string {
 func spec(stream []string, uFeat string, movedFeat string) []State {
     //strings.Split(stream)
     var (
-        head string
-        sel string
-        states []State
+        head    string
+        sel     string
+        states  []State
+        target  string   =  strings.Split(uFeat, "u")[1]
+        bundles   []string
+
     )
     for i, word := range stream {
         categories := lex[word]
         for _, cat := range categories {
             cat_sel := strings.Split(cat, "_")
             head = cat_sel[0]
-            sel = ""
+            sel = "."
             if len(cat_sel) == 2 {
                 sel = cat_sel[1]
             }
-            candidates := feat[head]
-            for _, candidate := range candidates {
-                bundle := strings.Split(candidate, ",")
-                if bundle[0] == sel {
+            if head != target {
+                bundles = null[target]
+            } else {
+                bundles = feat[target]
+            }
+            for _, bundle := range bundles {
+                feats := strings.Split(bundle, ",")
+                if feats[0] == sel {
                     xP := &Node{}
                     xP.Label = head + "P"
-                    xP.Left = &Node{head, word, nil, nil, bundle}
+                    xP.Left = &Node{head, word, nil, nil, feats}
                     states = append(states, State{xP, stream[i+1:]})
                 }
             }
