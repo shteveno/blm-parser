@@ -3,3 +3,5 @@ might: T
 love: V
 cake: N
 that: C
+the: D
+big: J

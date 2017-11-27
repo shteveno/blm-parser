@@ -20,6 +20,11 @@ type Node struct {
     Features []string
 }
 
+type State struct {
+    Node *Node
+    Stream []string
+}
+
 var (
     lex  map[string][]string
     feat map[string][]string
@@ -40,38 +45,37 @@ func wait_user() string {
 }
 
 // Attemps to merge the required specifier given the 
-// word stream
-func spec(stream []string, uFeat string) *Node {
+// word stream. Returns all possible states where
+// the requested specifier can be interpreted
+func spec(stream []string, uFeat string, movedFeat string) []State {
     //strings.Split(stream)
     var (
         head string
-        id string
-        xP *Node
+        sel string
+        states []State
     )
-    for _, word := range stream {
-        lex_cats := lex[word]
-        for _, lex_cat := range lex_cats {
-            head_feats := strings.Split(lex_cat, "_")
-            head = head_feats[0]
-            id = ""
-            if len(head_feats) == 2 {
-                id = head_feats[1]
+    for i, word := range stream {
+        categories := lex[word]
+        for _, cat := range categories {
+            cat_sel := strings.Split(cat, "_")
+            head = cat_sel[0]
+            sel = ""
+            if len(cat_sel) == 2 {
+                sel = cat_sel[1]
             }
-            fmt.Println("head:", head)
-            fmt.Println("id:", id)
             candidates := feat[head]
             for _, candidate := range candidates {
                 bundle := strings.Split(candidate, ",")
-                if bundle[0] == id {
-                    xP = &Node{}
+                if bundle[0] == sel {
+                    xP := &Node{}
                     xP.Label = head + "P"
                     xP.Left = &Node{head, word, nil, nil, bundle}
-                    return xP
+                    states = append(states, State{xP, stream[i+1:]})
                 }
             }
         }
     }
-    return xP
+    return states
 }
 
 func parse(sentence string) *Node {
@@ -81,14 +85,17 @@ func parse(sentence string) *Node {
     )
     tBar.Left = t
     stream := strings.Split(sentence, " ")
+    t.Label = "T"
+    t.Form = "$\\varnothing$"
     t.Features = []string{"FIN,*uD,uv"}
-    found := spec(stream, "*uD")
+    found := spec(stream, "*uD", "")
     if found == nil {
         return nil
     }
+    fmt.Println("This is what remains:", found[0].Stream)
     ret := Node{}
     ret.Label = "TP"
-    ret.Left = found
+    ret.Left = found[0].Node
     ret.Right = tBar
     return &ret
 }
