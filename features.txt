@@ -5,11 +5,11 @@ v: PASS,*uV
 v: UACC,.,uV
 V: .,uD,.
 V: .,uC,.
-V: X,uA,uV
+V: .,uA,uV
 N: .,.,.
-N: X,uJ,uN
+N: .,uJ,uN
 J: .,.,.
-J: X,uI,uJ
+J: .,uI,uJ
 D: 1.SG.NOM,.,.
 D: .,.,uN
 D: .,uD,uN
