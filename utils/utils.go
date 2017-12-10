@@ -3,6 +3,7 @@
 package utils
 
 import(
+    "blm/structs"
     "fmt"
     "bufio"
     "log"
@@ -62,3 +63,32 @@ func PrintMap(maps []map[string][]string) {
     }
 }
 
+// Waits for user input to process and parse into a tree.
+func Wait_user() string {
+	buf := bufio.NewReader(os.Stdin)
+    fmt.Print("> ")
+    sentence, err := buf.ReadBytes('\n')
+    if err != nil {
+        fmt.Println(err)
+		return ""
+    } else {
+        return string(sentence)
+    }
+}
+
+// Formats the resulting tree such that it may be compiled in
+// Latex.
+func Latex(root *structs.Node, depth int) {
+    if root == nil {
+        return
+    }
+    offset := strings.Repeat(" ", depth*2)
+    if root.Left == root.Right {
+        fmt.Println(offset + "[." + root.Label + " " + root.Form + " ]")
+        return
+    }
+    fmt.Println(offset + "[." + root.Label + " ")
+    Latex(root.Left, depth + 1)
+    Latex(root.Right, depth + 1)
+    fmt.Println(offset + "]")
+}

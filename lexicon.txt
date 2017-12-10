@@ -5,3 +5,5 @@ cake: N
 that: C
 the: D
 big: J
+Steven: N
+'s: D
