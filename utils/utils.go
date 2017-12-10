@@ -84,11 +84,11 @@ func Latex(root *structs.Node, depth int) {
     }
     offset := strings.Repeat(" ", depth*2)
     if root.Left == root.Right {
-        fmt.Println(offset + "[." + root.Label + " " + root.Form + " ]")
+        fmt.Printf("%s[.%s %s ]\n", offset, root.Label, root.Form)
         return
     }
-    fmt.Println(offset + "[." + root.Label + " ")
+    fmt.Printf("%s[.%s \n", offset, root.Label)
     Latex(root.Left, depth + 1)
     Latex(root.Right, depth + 1)
-    fmt.Println(offset + "]")
+    fmt.Printf("%s]\n", offset)
 }
