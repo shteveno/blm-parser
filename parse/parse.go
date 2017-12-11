@@ -50,7 +50,7 @@ func spec(stream []string, uFeat string) []*structs.Node {
         return nil
     }
     uCat, _, _ := defeat(uFeat)
-    fmt.Println(stream, uFeat)
+    //fmt.Println(stream, uFeat)
     found := search(stream, "u" + uCat)
     //for _, tree := range found {
     //    utils.Latex(tree, 0)
@@ -122,6 +122,7 @@ func head(stream []string, uFeat string) []*structs.State {
 }
 
 func comp(stream []string, uFeat string) []*structs.State {
+    fmt.Println("In comp:", stream, uFeat)
     return nil
     //return []*structs.State{&structs.State{&structs.Node{"vP", "", &structs.Node{"v_{\\textsc{ag}}", "like", nil, nil, nil}, &structs.Node{"VP", "", &structs.Node{"DP", "", nil, nil, nil}, &structs.Node{"V", "", nil, nil, nil}, nil}, nil}, nil}}
 }
@@ -143,7 +144,7 @@ func search(stream []string, uFeat string) []*structs.Node {
             }
             //fmt.Println("I made a head, no specifier!")
             //utils.Latex(x.Tree, 0)
-            complements := comp(x.Remaining, x.Comp)
+            complements := comp(stream[x.HeadPos:], x.Comp)
             if complements == nil {
                 if x.Comp != "." {
                     continue
@@ -158,9 +159,9 @@ func search(stream []string, uFeat string) []*structs.Node {
             }
         }
         for _, wP := range specifiers {
-            fmt.Println("I made a specifier!")
-            utils.Latex(wP, 0)
-            complements := comp(x.Remaining, x.Comp)
+            //fmt.Println("I made a specifier!")
+            //utils.Latex(wP, 0)
+            complements := comp(stream[x.HeadPos:], x.Comp)
             if complements == nil {
                 if x.Comp != "." {
                     continue

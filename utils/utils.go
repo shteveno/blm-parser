@@ -72,7 +72,7 @@ func Wait_user() string {
         fmt.Println(err)
 		return ""
     } else {
-        return string(sentence)
+        return strings.TrimSpace(string(sentence))
     }
 }
 
