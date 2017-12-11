@@ -23,28 +23,58 @@ var (
 
 //return []*structs.State{&structs.State{&structs.Node{"DP", "I", nil, nil, nil}, []string{"like", "cake"}}}
 
-/*  Attemps to find the required specifier headed by the 
-    target, given the word stream. Returns all possible states
-    where the requested specifier can be interpreted. */
-func spec(stream []string, uFeat string) []*structs.State {
-    return nil
-}
-
-func head(stream []string, uFeat string) []*structs.State {
+/*  Takes in a fill uFeature and returns the lexical class,
+    a selected feature, and whether or not it was strong. */
+func defeat(uFeat string) (string, string, bool) {
     var (
-        states    []*structs.State
+        isStrong  bool               = uFeat[0] == '*'
         full_feat string             = strings.Split(uFeat, "u")[1]
         temp      []string           = strings.Split(full_feat, "_")
         uCat      string
         uSel      string
-        bundles   []string
-        wordsUsed int
     )
     uCat = temp[0]
     if len(temp) == 2 {
         uSel = temp[1]
     } else {
         uSel = "."
+    }
+    return uCat, uSel, isStrong
+}
+
+/*  Attemps to find the required specifier headed by the 
+    target, given the word stream. Returns all possible states
+    where the requested specifier can be interpreted. */
+func spec(stream []string, uFeat string) []*structs.State {
+    var (
+        states    []*structs.State
+    )
+    if stream == nil {
+        return nil
+    }
+    uCat, uSel, isStrong := defeat(uFeat)
+    fmt.Println(uCat, uSel, isStrong, states)
+    return nil
+}
+
+func head(stream []string, uFeat string) []*structs.State {
+    var (
+        states    []*structs.State
+        bundles   []string
+        wordsUsed int
+    )
+    uCat, uSel, isStrong := defeat(uFeat)
+    if isStrong {
+        bundles = feat[uCat]
+        for _, bundle := range bundles {
+            feats := strings.Split(bundle, ",")
+            x := &structs.Node{}
+            x.Label = uCat + "_" + uSel
+            x.Form = "$\\sout{" + uCat + "P}$"
+            x.Features = feats
+            states = append(states, &structs.State{x, stream, wordsUsed, feats[1], feats[2]})
+        }
+        return states
     }
     for i, word := range stream {
         categories := lex[word]
@@ -65,7 +95,7 @@ func head(stream []string, uFeat string) []*structs.State {
                 feats := strings.Split(bundle, ",")
                 if feats[0] == uSel || uSel == "." {
                     x := &structs.Node{}
-                    x.Label = full_feat
+                    x.Label = uCat + "_" + uSel
                     if feats[2][0] == '*' {
                         fmt.Println("Strong feature found: " + feats[2])
                     }
