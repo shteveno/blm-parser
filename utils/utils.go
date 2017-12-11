@@ -76,6 +76,43 @@ func Wait_user() string {
     }
 }
 
+/* Turns the sentence into a stream of lexical heads. */
+func Lexify(sentence string) []string {
+    return strings.Split(sentence, " ")
+}
+
+/* Makes a copy of a tree. */
+func Copy(root *structs.Node) *structs.Node {
+    if root == nil {
+        return nil
+    }
+    ret := &structs.Node{}
+    ret.Label = root.Label
+    ret.Form = root.Form
+    ret.Left = Copy(root.Left)
+    ret.Right = Copy(root.Right)
+    ret.Features = root.Features
+    return ret
+}
+
+/* Forms a tree given the specifier, head, and complement. */
+func FormTree(spec *structs.Node, head *structs.Node, comp *structs.Node) *structs.Node {
+    var (
+        xP *structs.Node = &structs.Node{}
+        xBar *structs.Node = xP
+    )
+    xP.Label = head.Label + "P"
+    if spec != nil {
+        xBar = &structs.Node{}
+        xP.Left = Copy(spec)
+        xP.Right = xBar
+        xBar.Label = head.Label + "'"
+    }
+    xBar.Left = Copy(head)
+    xBar.Right = Copy(comp)
+    return xP
+}
+
 // Formats the resulting tree such that it may be compiled in
 // Latex.
 func Latex(root *structs.Node, depth int) {

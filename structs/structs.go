@@ -12,6 +12,9 @@ type Node struct {
 }
 
 type State struct {
-    Node   *Node
-    Stream []string
+    Tree          *Node
+    Remaining     []string
+    HeadPos       int
+    Spec          string
+    Comp          string
 }

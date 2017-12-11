@@ -2,6 +2,5 @@ v: AG,uD,*uV
 v: UACC,.,uV
 D: .,.,uN
 T: FIN,*uD,uV,Infl:PRES
-T: FIN,*uD,uV,Infl:PAST
 C: FIN,.,uT
 C: -FIN,.,uT

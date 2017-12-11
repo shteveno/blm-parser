@@ -6,24 +6,8 @@ import(
     "blm/structs"
 	"blm/utils"
 	"fmt"
-	//"os"
-	//"strings"
+	"strings"
 )
-
-// Struct definition for a node in the binary tree that
-// is returned by the parse function
-//type Node struct {
-//    Label string
-//    Form string
-//    Left *Node
-//    Right *Node
-//    Features []string
-//}
-
-//type State struct {
-//    Node   *Node
-//    Stream []string
-//}
 
 var (
     lex  map[string][]string
@@ -31,8 +15,110 @@ var (
     null map[string][]string
 )
 
+/*  Looks for a constituent headed by the target and returns it
+    along with the remaining words in the stream. */
+//func search(stream []string, head string, form string, ) &structs.State {
+
+//}
+
+//return []*structs.State{&structs.State{&structs.Node{"DP", "I", nil, nil, nil}, []string{"like", "cake"}}}
+
+/*  Attemps to find the required specifier headed by the 
+    target, given the word stream. Returns all possible states
+    where the requested specifier can be interpreted. */
+func spec(stream []string, uFeat string) []*structs.State {
+    return nil
+}
+
+func head(stream []string, uFeat string) []*structs.State {
+    var (
+        states    []*structs.State
+        full_feat string             = strings.Split(uFeat, "u")[1]
+        temp      []string           = strings.Split(full_feat, "_")
+        uCat      string
+        uSel      string
+        bundles   []string
+        wordsUsed int
+    )
+    uCat = temp[0]
+    if len(temp) == 2 {
+        uSel = temp[1]
+    } else {
+        uSel = "."
+    }
+    for i, word := range stream {
+        categories := lex[word]
+        for _, cat := range categories {
+            cat_sel := strings.Split(cat, "_")
+            head := cat_sel[0]
+            // You must use a null head
+            if head != uCat {
+                bundles = null[uCat]
+                wordsUsed = i
+                word = "$\\varnothing$"
+            // There is an overt head present
+            } else {
+                bundles = feat[uCat]
+                wordsUsed = i + 1
+            }
+            for _, bundle := range bundles {
+                feats := strings.Split(bundle, ",")
+                if feats[0] == uSel || uSel == "." {
+                    x := &structs.Node{}
+                    x.Label = full_feat
+                    if feats[2][0] == '*' {
+                        fmt.Println("Strong feature found: " + feats[2])
+                    }
+                    x.Form = word
+                    x.Features = feats
+                    states = append(states, &structs.State{x, stream, wordsUsed, feats[1], feats[2]})
+                }
+            }
+        }
+    }
+    return states
+    //return []*structs.State{&structs.State{&structs.Node{"T", "$\\varnothing_{\\textsc{pres}}$", nil, nil, nil}, []string{"like", "cake"}}}
+}
+
+func comp(stream []string, uFeat string) []*structs.State {
+    return nil
+    //return []*structs.State{&structs.State{&structs.Node{"vP", "", &structs.Node{"v_{\\textsc{ag}}", "like", nil, nil, nil}, &structs.Node{"VP", "", &structs.Node{"DP", "", nil, nil, nil}, &structs.Node{"V", "", nil, nil, nil}, nil}, nil}, nil}}
+}
+
+func parseTP(stream []string) []*structs.Node {
+    var ret []*structs.Node
+    heads := head(stream, "uT")
+    if heads == nil {
+        return nil
+    }
+    for _, x := range heads {
+        specifiers := spec(stream[:x.HeadPos], "*uD")
+        if specifiers == nil {
+            continue
+        }
+        for _, wP := range specifiers {
+            complements := comp(x.Remaining, "uv")
+            if complements == nil {
+                continue
+            }
+            for _, yP := range complements {
+                if yP.Remaining == nil {
+                    ret = append(ret, utils.FormTree(wP.Tree, x.Tree, yP.Tree))
+                }
+            }
+
+        }
+    }
+    return ret
+}
+
 func parse(sentence string) *structs.Node {
-    return &structs.Node{"TP", "", &structs.Node{"T", "lmao", nil, nil, nil}, &structs.Node{"vP", "", nil, nil, nil}, nil}
+    stream := utils.Lexify(sentence)
+    trees := parseTP(stream)
+    if trees == nil {
+        return nil
+    }
+    return trees[0]
 }
 
 func main() {
@@ -44,10 +130,10 @@ func main() {
     utils.Init_map(null, "../null.txt")
     utils.PrintMap([]map[string][]string{lex, feat, null})
     sentence := utils.Wait_user()
-	if sentence == "" {
-		fmt.Println("Error listening to sentence.")
-		return
-	}
+    if sentence == "" {
+        fmt.Println("Error listening to sentence.")
+        return
+    }
     soln := parse(sentence)
     if soln == nil {
         fmt.Println("No tree can be formed for the sentence:")

@@ -1,6 +1,7 @@
 I: D_1.SG.NOM
-might: T
+might: T_FIN
 love: V
+like: V
 cake: N
 that: C
 the: D
