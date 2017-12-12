@@ -158,7 +158,7 @@ func search(stream []string, uFeat string, moved *structs.Node) []*structs.State
             //fmt.Println(moved.Label)
             if maybe_move == moved.Label {
                 toAdd := &structs.State{}
-                toAdd.Tree =  &structs.Node{maybe_move, "", nil, nil, nil}
+                toAdd.Tree =  &structs.Node{"\\sout{" + maybe_move + "}", "", nil, nil, nil}
                 toAdd.Remaining = x.Remaining
                 toAdd.HeadPos = 0
                 toAdd.Spec = "."
