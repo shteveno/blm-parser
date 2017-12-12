@@ -67,8 +67,11 @@ func head(stream []string, uFeat string, moved *structs.Node) []*structs.State {
             feats := strings.Split(bundle, ",")
             fmt.Println("*uV feat bundle:",bundle, "stream:", stream, "feats1:", feats[1], "feats2:", feats[2])
             x := &structs.Node{}
-            x.Label = uCat + "_" + uSel
-            x.Form = "$\\sout{" + uCat + "P}$"
+            x.Label = uCat
+            if uSel != "." {
+                x.Label += "$_{\\textsc{" + uSel + "}}$"
+            }
+            x.Form = ""
             x.Features = feats
             states = append(states, &structs.State{x, stream, wordsUsed+1, feats[1], feats[2]})
         }
@@ -106,7 +109,10 @@ func head(stream []string, uFeat string, moved *structs.Node) []*structs.State {
                 }
                 if feats[0] == sel {
                     x := &structs.Node{}
-                    x.Label = uCat + "_" + sel
+                    x.Label = uCat
+                    if sel != "." {
+                        x.Label += "$_{\\textsc{" + sel + "}}$"
+                    }
                     if feats[2][0] == '*' {
                         fmt.Println("Strong feature found: " + feats[2])
                         fmt.Println("Its features:", feats[1], feats[2])

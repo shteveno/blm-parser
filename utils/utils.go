@@ -101,7 +101,7 @@ func FormTree(spec *structs.Node, head *structs.Node, comp *structs.Node) *struc
         xP *structs.Node = &structs.Node{}
         xBar *structs.Node = xP
     )
-    cat := strings.Split(head.Label, "_")[0]
+    cat := strings.Split(head.Label, "$_")[0]
     xP.Label = cat + "P"
     if spec != nil {
         xBar = &structs.Node{}
@@ -125,6 +125,8 @@ func Latex(root *structs.Node, depth int) {
         cat_sel := strings.Split(root.Form, "_")
         if len(cat_sel) == 2 && cat_sel[1] != "." {
             root.Form = cat_sel[0] + "_{\\textsc{" + cat_sel[1] + "}}"
+        } else {
+            root.Form = cat_sel[0]
         }
         fmt.Printf("%s[.%s %s ]\n", offset, root.Label, root.Form)
         return
