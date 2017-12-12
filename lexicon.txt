@@ -2,6 +2,7 @@ I: D_1.SG.NOM
 might: T_FIN
 love: V
 like: V
+boy: N
 cake: N
 that: C
 the: D

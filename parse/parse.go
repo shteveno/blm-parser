@@ -50,11 +50,11 @@ func spec(stream []string, uFeat string) []*structs.State {
         return nil
     }
     uCat, _, _ := defeat(uFeat)
-    found := search(stream, "u" + uCat)
+    found := search(stream, "u" + uCat, nil)
     return found
 }
 
-func head(stream []string, uFeat string) []*structs.State {
+func head(stream []string, uFeat string, moved *structs.Node) []*structs.State {
     var (
         states    []*structs.State
         bundles   []string
@@ -65,11 +65,12 @@ func head(stream []string, uFeat string) []*structs.State {
         bundles = feat[uCat]
         for _, bundle := range bundles {
             feats := strings.Split(bundle, ",")
+            fmt.Println("*uV feat bundle:",bundle, "stream:", stream, "feats1:", feats[1], "feats2:", feats[2])
             x := &structs.Node{}
             x.Label = uCat + "_" + uSel
             x.Form = "$\\sout{" + uCat + "P}$"
             x.Features = feats
-            states = append(states, &structs.State{x, stream, wordsUsed, feats[1], feats[2]})
+            states = append(states, &structs.State{x, stream, wordsUsed+1, feats[1], feats[2]})
         }
         return states
     }
@@ -90,6 +91,9 @@ func head(stream []string, uFeat string) []*structs.State {
                 if uCat == "T" {
                     sel = "FIN"
                 }
+                if uCat == "v" {
+                    sel = "AG"
+                }
             // There is an overt head present
             } else {
                 bundles = feat[uCat]
@@ -97,7 +101,7 @@ func head(stream []string, uFeat string) []*structs.State {
             }
             for _, bundle := range bundles {
                 feats := strings.Split(bundle, ",")
-                if feats[1] != "." && wordsUsed == 0 {
+                if feats[1] != "." && wordsUsed == 0 && moved == nil {
                     continue
                 }
                 if feats[0] == sel {
@@ -105,6 +109,10 @@ func head(stream []string, uFeat string) []*structs.State {
                     x.Label = uCat + "_" + sel
                     if feats[2][0] == '*' {
                         fmt.Println("Strong feature found: " + feats[2])
+                        fmt.Println("Its features:", feats[1], feats[2])
+                        fmt.Println("Remaining stream:", stream[wordsUsed + 1:])
+                        word = stream[wordsUsed]
+                        wordsUsed += 1
                     }
                     x.Form = word
                     x.Features = feats
@@ -117,34 +125,54 @@ func head(stream []string, uFeat string) []*structs.State {
     //return []*structs.State{&structs.State{&structs.Node{"T", "$\\varnothing_{\\textsc{pres}}$", nil, nil, nil}, []string{"like", "cake"}}}
 }
 
-func comp(stream []string, uFeat string) []*structs.State {
+func comp(stream []string, uFeat string, moved *structs.Node) []*structs.State {
     if stream == nil || uFeat == "." {
         return nil
     }
-    comp_feat := strings.Split(uFeat, "_")[0]
-    found := search(stream, comp_feat)
+    fmt.Println("search called on:", stream, uFeat, moved)
+    found := search(stream, uFeat, moved)
     return found
     //return []*structs.State{&structs.State{&structs.Node{"vP", "", &structs.Node{"v_{\\textsc{ag}}", "like", nil, nil, nil}, &structs.Node{"VP", "", &structs.Node{"DP", "", nil, nil, nil}, &structs.Node{"V", "", nil, nil, nil}, nil}, nil}, nil}}
 }
 
-func search(stream []string, uFeat string) []*structs.State {
+func search(stream []string, uFeat string, moved *structs.Node) []*structs.State {
     if stream == nil || uFeat == "." {
         return nil
     }
     var ret []*structs.State
-    heads := head(stream, uFeat)
+    heads := head(stream, uFeat, moved)
     if heads == nil {
         return nil
     }
     for _, x := range heads {
-        specifiers := spec(stream[:x.HeadPos], x.Spec)
+        var specifiers []*structs.State
+        if moved != nil  {
+            maybe_move := strings.Split(x.Spec, "u")[1] + "P"
+            //fmt.Println(maybe_move)
+            //fmt.Println(moved.Label)
+            if maybe_move == moved.Label {
+                toAdd := &structs.State{}
+                toAdd.Tree =  &structs.Node{maybe_move, "", nil, nil, nil}
+                toAdd.Remaining = x.Remaining
+                toAdd.HeadPos = 0
+                toAdd.Spec = "."
+                toAdd.Comp = "."
+                specifiers = append(specifiers, toAdd)
+                fmt.Println("uFeat trying to be resolved by movement", x.Spec)
+                utils.Latex(toAdd.Tree, 0)
+            }
+        }
+        if x.HeadPos > len(stream) {
+            continue
+        }
+        specifiers = append(specifiers, spec(stream[:x.HeadPos], x.Spec)...)
         if specifiers == nil {
             if x.Spec != "." {
                 continue
             }
             //fmt.Println("I made a head, no specifier!")
             //utils.Latex(x.Tree, 0)
-            complements := comp(stream[x.HeadPos:], x.Comp)
+            complements := comp(stream[x.HeadPos:], x.Comp, moved)
             if complements == nil {
                 if x.Comp != "." {
                     continue
@@ -175,18 +203,23 @@ func search(stream []string, uFeat string) []*structs.State {
             }
         }
         for _, wP := range specifiers {
-            fmt.Println("I made a specifier!")
+            moved = nil
+            fmt.Println("I made a specifier for", uFeat)
             utils.Latex(wP.Tree, 0)
             fmt.Println("Remaining:", stream[x.HeadPos:])
-            fmt.Println("next feature:", x.Comp)
-            complements := comp(stream[x.HeadPos:], x.Comp)
+            fmt.Println("Next comp feature:", x.Comp)
+            if x.Spec[0] == '*' {
+                moved = wP.Tree
+            }
+            fmt.Println("comp called on: ", stream[x.HeadPos:], x.Comp, moved)
+            complements := comp(stream[x.HeadPos:], x.Comp, moved)
             if complements == nil {
                 if x.Comp != "." {
                     continue
                 }
                 toAdd := &structs.State{}
                 toAdd.Tree = utils.FormTree(wP.Tree, x.Tree, nil)
-                toAdd.Remaining = stream[x.HeadPos:]
+                toAdd.Remaining = []string{}
                 toAdd.HeadPos = 0
                 toAdd.Spec = "."
                 toAdd.Comp = "."
@@ -194,11 +227,12 @@ func search(stream []string, uFeat string) []*structs.State {
                 continue
             }
             for _, yP := range complements {
-                fmt.Println("OMGGGGGGGG")
+                fmt.Println("Got full constituent for ", uFeat)
+                fmt.Println("Remaining of string:", yP.Remaining)
                 if len(yP.Remaining) == 0 {
                     toAdd := &structs.State{}
                     toAdd.Tree = utils.FormTree(wP.Tree, x.Tree, yP.Tree)
-                    toAdd.Remaining = stream[yP.HeadPos:]
+                    toAdd.Remaining = []string{}
                     toAdd.HeadPos = 0
                     toAdd.Spec = "."
                     toAdd.Comp = "."
@@ -213,7 +247,7 @@ func search(stream []string, uFeat string) []*structs.State {
 
 func parseTP(stream []string) []*structs.Node {
     var ret []*structs.Node
-    for _, state  := range search(stream, "uT_FIN") {
+    for _, state  := range search(stream, "uT_FIN", nil) {
         ret = append(ret, state.Tree)
     }
     return ret
