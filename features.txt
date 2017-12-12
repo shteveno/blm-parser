@@ -1,5 +1,5 @@
-T: FIN,*uD,uV
-T: -FIN,*uD,uV
+T: FIN,*uD,uv
+T: -FIN,*uD,uv
 V: .,uD,.
 N: .,.,.
 J: .,.,.
