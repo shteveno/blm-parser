@@ -1,7 +1,6 @@
 v: AG,uD,*uV
 v: UACC,.,uV
 D: .,.,uN
-T: FIN,*uD,uV,Infl:PRES
-T: FIN,*uD,uV,Infl:PAST
+T: FIN,*uD,uv_AG,Infl:PRES
 C: FIN,.,uT
 C: -FIN,.,uT

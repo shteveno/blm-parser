@@ -3,6 +3,7 @@
 package utils
 
 import(
+    "blm/structs"
     "fmt"
     "bufio"
     "log"
@@ -62,3 +63,76 @@ func PrintMap(maps []map[string][]string) {
     }
 }
 
+// Waits for user input to process and parse into a tree.
+func Wait_user() string {
+	buf := bufio.NewReader(os.Stdin)
+    fmt.Print("> ")
+    sentence, err := buf.ReadBytes('\n')
+    if err != nil {
+        fmt.Println(err)
+		return ""
+    } else {
+        return strings.TrimSpace(string(sentence))
+    }
+}
+
+/* Turns the sentence into a stream of lexical heads. */
+func Lexify(sentence string) []string {
+    return strings.Split(sentence, " ")
+}
+
+/* Makes a copy of a tree. */
+func Copy(root *structs.Node) *structs.Node {
+    if root == nil {
+        return nil
+    }
+    ret := &structs.Node{}
+    ret.Label = root.Label
+    ret.Form = root.Form
+    ret.Left = Copy(root.Left)
+    ret.Right = Copy(root.Right)
+    ret.Features = root.Features
+    return ret
+}
+
+/* Forms a tree given the specifier, head, and complement. */
+func FormTree(spec *structs.Node, head *structs.Node, comp *structs.Node) *structs.Node {
+    var (
+        xP *structs.Node = &structs.Node{}
+        xBar *structs.Node = xP
+    )
+    cat := strings.Split(head.Label, "$_")[0]
+    xP.Label = cat + "P"
+    if spec != nil {
+        xBar = &structs.Node{}
+        xP.Left = Copy(spec)
+        xP.Right = xBar
+        xBar.Label = cat + "'"
+    }
+    xBar.Left = Copy(head)
+    xBar.Right = Copy(comp)
+    return xP
+}
+
+// Formats the resulting tree such that it may be compiled in
+// Latex.
+func Latex(root *structs.Node, depth int) {
+    if root == nil {
+        return
+    }
+    offset := strings.Repeat(" ", depth*2)
+    if root.Left == root.Right {
+        cat_sel := strings.Split(root.Form, "_")
+        if len(cat_sel) == 2 && cat_sel[1] != "." {
+            root.Form = cat_sel[0] + "_{\\textsc{" + cat_sel[1] + "}}"
+        } else {
+            root.Form = cat_sel[0]
+        }
+        fmt.Printf("%s[.%s %s ]\n", offset, root.Label, root.Form)
+        return
+    }
+    fmt.Printf("%s[.%s \n", offset, root.Label)
+    Latex(root.Left, depth + 1)
+    Latex(root.Right, depth + 1)
+    fmt.Printf("%s]\n", offset)
+}
