@@ -73,7 +73,7 @@ func head(stream []string, uFeat string, moved *structs.Node) []*structs.State {
             }
             x.Form = ""
             x.Features = feats
-            states = append(states, &structs.State{x, stream, wordsUsed+1, feats[1], feats[2]})
+            states = append(states, &structs.State{x, stream, len(stream), feats[1], feats[2]})
         }
         return states
     }
@@ -176,8 +176,8 @@ func search(stream []string, uFeat string, moved *structs.Node) []*structs.State
             if x.Spec != "." {
                 continue
             }
-            //fmt.Println("I made a head, no specifier!")
-            //utils.Latex(x.Tree, 0)
+            fmt.Println("I made a head, no specifier!")
+            utils.Latex(x.Tree, 0)
             complements := comp(stream[x.HeadPos:], x.Comp, moved)
             if complements == nil {
                 if x.Comp != "." {
@@ -265,6 +265,9 @@ func parse(sentence string) *structs.Node {
     if trees == nil {
         return nil
     }
+    //for _, tree := range trees {
+    //    utils.Latex(tree, 0)
+    //}
     return trees[0]
 }
 

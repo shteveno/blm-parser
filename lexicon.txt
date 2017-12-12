@@ -1,7 +1,10 @@
 I: D_1.SG.NOM
 might: T_FIN
 love: V
+loves: V
 like: V
+likes: V
+swim: V
 boy: N
 cake: N
 that: C
