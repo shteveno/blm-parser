@@ -45,16 +45,12 @@ func defeat(uFeat string) (string, string, bool) {
 /*  Attemps to find the required specifier headed by the 
     target, given the word stream. Returns all possible states
     where the requested specifier can be interpreted. */
-func spec(stream []string, uFeat string) []*structs.Node {
+func spec(stream []string, uFeat string) []*structs.State {
     if stream == nil || uFeat == "." {
         return nil
     }
     uCat, _, _ := defeat(uFeat)
-    //fmt.Println(stream, uFeat)
     found := search(stream, "u" + uCat)
-    //for _, tree := range found {
-    //    utils.Latex(tree, 0)
-    //}
     return found
 }
 
@@ -122,16 +118,20 @@ func head(stream []string, uFeat string) []*structs.State {
 }
 
 func comp(stream []string, uFeat string) []*structs.State {
-    fmt.Println("In comp:", stream, uFeat)
-    return nil
-    //return []*structs.State{&structs.State{&structs.Node{"vP", "", &structs.Node{"v_{\\textsc{ag}}", "like", nil, nil, nil}, &structs.Node{"VP", "", &structs.Node{"DP", "", nil, nil, nil}, &structs.Node{"V", "", nil, nil, nil}, nil}, nil}, nil}}
-}
-
-func search(stream []string, uFeat string) []*structs.Node {
     if stream == nil || uFeat == "." {
         return nil
     }
-    var ret []*structs.Node
+    comp_feat := strings.Split(uFeat, "_")[0]
+    found := search(stream, comp_feat)
+    return found
+    //return []*structs.State{&structs.State{&structs.Node{"vP", "", &structs.Node{"v_{\\textsc{ag}}", "like", nil, nil, nil}, &structs.Node{"VP", "", &structs.Node{"DP", "", nil, nil, nil}, &structs.Node{"V", "", nil, nil, nil}, nil}, nil}, nil}}
+}
+
+func search(stream []string, uFeat string) []*structs.State {
+    if stream == nil || uFeat == "." {
+        return nil
+    }
+    var ret []*structs.State
     heads := head(stream, uFeat)
     if heads == nil {
         return nil
@@ -149,29 +149,60 @@ func search(stream []string, uFeat string) []*structs.Node {
                 if x.Comp != "." {
                     continue
                 }
-                ret = append(ret, utils.FormTree(nil, x.Tree, nil))
+                toAdd := &structs.State{}
+                toAdd.Tree = utils.FormTree(nil, x.Tree, nil)
+                toAdd.Remaining = stream[x.HeadPos:]
+                toAdd.HeadPos = 0
+                toAdd.Spec = "."
+                toAdd.Comp = "."
+                ret = append(ret, toAdd)
                 continue
             }
             for _, yP := range complements {
-                if yP.Remaining == nil {
-                    ret = append(ret, utils.FormTree(nil, x.Tree, yP.Tree))
+                //fmt.Println("OMFG")
+                //utils.Latex(x.Tree, 0)
+                //utils.Latex(yP.Tree, 0)
+                //fmt.Println(yP.Remaining)
+                if len(yP.Remaining) == 0 {
+                    toAdd := &structs.State{}
+                    toAdd.Tree = utils.FormTree(nil, x.Tree, yP.Tree)
+                    toAdd.Remaining = stream[yP.HeadPos:]
+                    toAdd.HeadPos = 0
+                    toAdd.Spec = "."
+                    toAdd.Comp = "."
+                    ret = append(ret, toAdd)
                 }
             }
         }
         for _, wP := range specifiers {
-            //fmt.Println("I made a specifier!")
-            //utils.Latex(wP, 0)
+            fmt.Println("I made a specifier!")
+            utils.Latex(wP.Tree, 0)
+            fmt.Println("Remaining:", stream[x.HeadPos:])
+            fmt.Println("next feature:", x.Comp)
             complements := comp(stream[x.HeadPos:], x.Comp)
             if complements == nil {
                 if x.Comp != "." {
                     continue
                 }
-                ret = append(ret, utils.FormTree(wP, x.Tree, nil))
+                toAdd := &structs.State{}
+                toAdd.Tree = utils.FormTree(wP.Tree, x.Tree, nil)
+                toAdd.Remaining = stream[x.HeadPos:]
+                toAdd.HeadPos = 0
+                toAdd.Spec = "."
+                toAdd.Comp = "."
+                ret = append(ret, toAdd)
                 continue
             }
             for _, yP := range complements {
-                if yP.Remaining == nil {
-                    ret = append(ret, utils.FormTree(wP, x.Tree, yP.Tree))
+                fmt.Println("OMGGGGGGGG")
+                if len(yP.Remaining) == 0 {
+                    toAdd := &structs.State{}
+                    toAdd.Tree = utils.FormTree(wP.Tree, x.Tree, yP.Tree)
+                    toAdd.Remaining = stream[yP.HeadPos:]
+                    toAdd.HeadPos = 0
+                    toAdd.Spec = "."
+                    toAdd.Comp = "."
+                    ret = append(ret, toAdd)
                 }
             }
 
@@ -181,7 +212,11 @@ func search(stream []string, uFeat string) []*structs.Node {
 }
 
 func parseTP(stream []string) []*structs.Node {
-    return search(stream, "uT_FIN")
+    var ret []*structs.Node
+    for _, state  := range search(stream, "uT_FIN") {
+        ret = append(ret, state.Tree)
+    }
+    return ret
 }
 
 func parse(sentence string) *structs.Node {

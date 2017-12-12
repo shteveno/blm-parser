@@ -123,7 +123,7 @@ func Latex(root *structs.Node, depth int) {
     offset := strings.Repeat(" ", depth*2)
     if root.Left == root.Right {
         cat_sel := strings.Split(root.Form, "_")
-        if len(cat_sel) == 2 {
+        if len(cat_sel) == 2 && cat_sel[1] != "." {
             root.Form = cat_sel[0] + "_{\\textsc{" + cat_sel[1] + "}}"
         }
         fmt.Printf("%s[.%s %s ]\n", offset, root.Label, root.Form)
